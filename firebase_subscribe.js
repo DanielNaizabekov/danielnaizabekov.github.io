@@ -40,7 +40,7 @@ if ('Notification' in window) {
     // по клику, запрашиваем у пользователя разрешение на уведомления
     // и подписываем его
 }
-
+subscribe();
 messaging.onMessage(function(payload) {
     console.log('Message received', payload);
     // register fake ServiceWorker for show notification on mobile devices
