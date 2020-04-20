@@ -41,24 +41,24 @@ if ('Notification' in window) {
     // и подписываем его
 }
 
-messaging.onMessage(function(payload) {
-    console.log('Message received', payload);
-    // register fake ServiceWorker for show notification on mobile devices
-    navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
-    Notification.requestPermission(function(permission) {
-        if (permission === 'granted') {
-            navigator.serviceWorker.ready.then(function(registration) {
-              // Copy data object to get parameters in the click handler
-              payload.data.data = JSON.parse(JSON.stringify(payload.data));
+// messaging.onMessage(function(payload) {
+//     console.log('Message received', payload);
+//     // register fake ServiceWorker for show notification on mobile devices
+//     navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
+//     Notification.requestPermission(function(permission) {
+//         if (permission === 'granted') {
+//             navigator.serviceWorker.ready.then(function(registration) {
+//               // Copy data object to get parameters in the click handler
+//               payload.data.data = JSON.parse(JSON.stringify(payload.data));
 
-              registration.showNotification(payload.data.title, payload.data);
-            }).catch(function(error) {
-                // registration failed :(
-                showError('ServiceWorker registration failed', error);
-            });
-        }
-    });
-});
+//               registration.showNotification(payload.data.title, payload.data);
+//             }).catch(function(error) {
+//                 // registration failed :(
+//                 showError('ServiceWorker registration failed', error);
+//             });
+//         }
+//     });
+// });
 
 function subscribe() {
     // запрашиваем разрешение на получение уведомлений
