@@ -2,6 +2,7 @@
 let btn = document.querySelector('.btn');
 
 btn.onclick = () => {
+    console.log(5);
     fetch('https://fcm.googleapis.com/fcm/send', {
         method: 'POST',
         headers: {
