@@ -2,23 +2,26 @@
 let btn = document.querySelector('.btn');
 
 btn.onclick = () => {
-    console.log(5);
-    fetch('https://fcm.googleapis.com/fcm/send', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'key=AAAAKgnYNn4:APA91bHOTjidUdenjycvDNPGW85b9vVGqF-px2HV0lPBBZzG0vN8lTBkH0x2tnzAzaXNM0ViQnETihMPIAJLlKOz5XYa70oyH3MuK8qLk_Tr27F8okZ2zrNiIjsScGWy6JGfOzAEmLRu',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            // Firebase loses 'image' from the notification.
-            // And you must see this: https://github.com/firebase/quickstart-js/issues/71
-            data: {
-                "title": "Ералаш",
-                "body": "Начало в 21:00",
+    messaging.getToken()
+    .then(token => {
+        console.log(token);
+        fetch('https://fcm.googleapis.com/fcm/send', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'key=AAAAKgnYNn4:APA91bHOTjidUdenjycvDNPGW85b9vVGqF-px2HV0lPBBZzG0vN8lTBkH0x2tnzAzaXNM0ViQnETihMPIAJLlKOz5XYa70oyH3MuK8qLk_Tr27F8okZ2zrNiIjsScGWy6JGfOzAEmLRu',
+                'Content-Type': 'application/json'
             },
-            to: 'eb6Ua_SCMFg:APA91bFoU8aMdI29EDHhAZihZIQgS8WvrE4-tt1cT5L6NAVGBsIcgMkfFzpP2Xm1--oa-WOs8NIry9ioBuVyhm8FwPaDNtyEgZA_cyTaMbZ3ve_w8fmc9GNgYYM642yArJXRucdKXszz'
-        })
-    }).then(response => console.log(response))
+            body: JSON.stringify({
+                // Firebase loses 'image' from the notification.
+                // And you must see this: https://github.com/firebase/quickstart-js/issues/71
+                data: {
+                    "title": "Ералаш",
+                    "body": "Начало в 21:00",
+                },
+                to: token,
+            })
+        }).then(response => console.log(response))
+    })
 };
 
 
@@ -41,7 +44,7 @@ if ('Notification' in window) {
     // по клику, запрашиваем у пользователя разрешение на уведомления
     // и подписываем его
 }
-subscribe();
+messaging.requestPermission()
 messaging.onMessage(function(payload) {
     console.log('Message received', payload);
     // register fake ServiceWorker for show notification on mobile devices
