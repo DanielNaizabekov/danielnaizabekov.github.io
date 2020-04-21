@@ -48,7 +48,7 @@ messaging.requestPermission()
 messaging.onMessage(function(payload) {
     console.log('Message received', payload);
     // register fake ServiceWorker for show notification on mobile devices
-    navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
+    navigator.serviceWorker.register('firebase-messaging-sw.js');
     Notification.requestPermission(function(permission) {
         if (permission === 'granted') {
             navigator.serviceWorker.ready.then(function(registration) {
