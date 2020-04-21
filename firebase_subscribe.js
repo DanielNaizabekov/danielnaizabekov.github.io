@@ -23,6 +23,7 @@ firebase.initializeApp({
 
 
 if ('Notification' in window) {
+    console.log('ok')
     messaging = firebase.messaging();
     subscribe();
 }
@@ -68,7 +69,6 @@ function subscribe() {
         console.warn('Не удалось получить разрешение на показ уведомлений.', err);
     });
 }
-subscribe();
 
 function sendTokenToServer(currentToken) {
     if (!isTokenSentToServer(currentToken)) {
