@@ -1,27 +1,19 @@
-
 let btn = document.querySelector('.btn');
-
 btn.onclick = () => {
-    messaging.getToken()
-    .then(token => {
-        console.log(token);
-        fetch('https://fcm.googleapis.com/fcm/send', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'key=AAAAKgnYNn4:APA91bHOTjidUdenjycvDNPGW85b9vVGqF-px2HV0lPBBZzG0vN8lTBkH0x2tnzAzaXNM0ViQnETihMPIAJLlKOz5XYa70oyH3MuK8qLk_Tr27F8okZ2zrNiIjsScGWy6JGfOzAEmLRu',
-                'Content-Type': 'application/json'
+    fetch('https://fcm.googleapis.com/fcm/send', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'key=AAAAKgnYNn4:APA91bHOTjidUdenjycvDNPGW85b9vVGqF-px2HV0lPBBZzG0vN8lTBkH0x2tnzAzaXNM0ViQnETihMPIAJLlKOz5XYa70oyH3MuK8qLk_Tr27F8okZ2zrNiIjsScGWy6JGfOzAEmLRu',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            data: {
+                "title": "Ералаш",
+                "body": "Начало в 21:00",
             },
-            body: JSON.stringify({
-                // Firebase loses 'image' from the notification.
-                // And you must see this: https://github.com/firebase/quickstart-js/issues/71
-                data: {
-                    "title": "Ералаш",
-                    "body": "Начало в 21:00",
-                },
-                to: token,
-            })
-        }).then(response => console.log(response))
-    })
+            to: 'fwlaAyOuTUs:APA91bGm3Jr_nvQJkILzFtAm8zOgH5LVGefz4o1C--Sx1FCKd4dqGWBWO83gIAKpUAbNfxZGqxqc5awztucalA65cLOncs2d3J6_dWjxmZo8ae9tSOitW5oL5OQH63pJy2IQ6IYxLvlc',
+        })
+    }).then(response => console.log(response))
 };
 
 
@@ -29,46 +21,47 @@ firebase.initializeApp({
     messagingSenderId: '180553791102'
 });
 
-// браузер поддерживает уведомления
-// вообще, эту проверку должна делать библиотека Firebase, но она этого не делает
+
 if ('Notification' in window) {
     messaging = firebase.messaging();
 
-    // пользователь уже разрешил получение уведомлений
-    // подписываем на уведомления если ещё не подписали
     if (Notification.permission === 'granted') {
         subscribe();
     }
 
-    subscribe();
-    // по клику, запрашиваем у пользователя разрешение на уведомления
-    // и подписываем его
-}
-messaging.requestPermission()
-messaging.onMessage(function(payload) {
-    console.log('Message received', payload);
-    // register fake ServiceWorker for show notification on mobile devices
-    navigator.serviceWorker.register('firebase-messaging-sw.js');
-    Notification.requestPermission(function(permission) {
-        if (permission === 'granted') {
-            navigator.serviceWorker.ready.then(function(registration) {
-              // Copy data object to get parameters in the click handler
-              payload.data.data = JSON.parse(JSON.stringify(payload.data));
+    messaging.onMessage(function(payload) {
+        console.log('Message received', payload);
 
-              registration.showNotification(payload.data.title, payload.data);
-            }).catch(function(error) {
-                // registration failed :(
-                showError('ServiceWorker registration failed', error);
-            });
-        }
+        navigator.serviceWorker.register('firebase-messaging-sw.js');
+        Notification.requestPermission(function(permission) {
+            if (permission === 'granted') {
+                navigator.serviceWorker.ready.then(function(registration) {
+                    
+                  payload.data.data = JSON.parse(JSON.stringify(payload.data));
+    
+                  registration.showNotification(payload.data.title, payload.data);
+                }).catch(function(error) {
+                    console.log('Error');
+                });
+            }
+        });
     });
-});
+
+    messaging.onTokenRefresh(function() {
+        messaging.getToken()
+            .then(function(refreshedToken) {
+                console.log('Token refreshed');
+                sendTokenToServer(refreshedToken);
+            })
+            .catch(function(error) {
+                console.log('Error');
+            });
+    });
+}
 
 function subscribe() {
-    // запрашиваем разрешение на получение уведомлений
     messaging.requestPermission()
         .then(function () {
-            // получаем ID устройства
             messaging.getToken()
                 .then(function (currentToken) {
                     console.log(currentToken);
@@ -89,8 +82,8 @@ function subscribe() {
         console.warn('Не удалось получить разрешение на показ уведомлений.', err);
     });
 }
+subscribe();
 
-// отправка ID на сервер
 function sendTokenToServer(currentToken) {
     if (!isTokenSentToServer(currentToken)) {
         console.log('Отправка токена на сервер...');
@@ -106,8 +99,6 @@ function sendTokenToServer(currentToken) {
     }
 }
 
-// используем localStorage для отметки того,
-// что пользователь уже подписался на уведомления
 function isTokenSentToServer(currentToken) {
     return window.localStorage.getItem('sentFirebaseMessagingToken') == currentToken;
 }
