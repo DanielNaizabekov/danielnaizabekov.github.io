@@ -8,7 +8,7 @@ btn.onclick = () => {
         },
         body: JSON.stringify({
             data: {
-                "title": "Ералаш",
+                "title": "Уведомление",
                 "body": "Начало в 21:00",
             },
             to: 'fwlaAyOuTUs:APA91bGm3Jr_nvQJkILzFtAm8zOgH5LVGefz4o1C--Sx1FCKd4dqGWBWO83gIAKpUAbNfxZGqxqc5awztucalA65cLOncs2d3J6_dWjxmZo8ae9tSOitW5oL5OQH63pJy2IQ6IYxLvlc',
@@ -24,10 +24,7 @@ firebase.initializeApp({
 
 if ('Notification' in window) {
     messaging = firebase.messaging();
-
-    if (Notification.permission === 'granted') {
-        subscribe();
-    }
+    subscribe();
 }
 
 messaging.onMessage(function(payload) {
@@ -46,17 +43,6 @@ messaging.onMessage(function(payload) {
             });
         }
     });
-});
-
-messaging.onTokenRefresh(function() {
-    messaging.getToken()
-        .then(function(refreshedToken) {
-            console.log('Token refreshed');
-            sendTokenToServer(refreshedToken);
-        })
-        .catch(function(error) {
-            console.log('Error');
-        });
 });
 
 function subscribe() {
