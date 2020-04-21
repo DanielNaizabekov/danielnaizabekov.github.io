@@ -7,8 +7,6 @@ btn.onclick = () => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            // Firebase loses 'image' from the notification.
-            // And you must see this: https://github.com/firebase/quickstart-js/issues/71
             data: {
                 "title": "Уведомление",
                 "body": "Начало в 21:00",
@@ -31,23 +29,24 @@ if ('Notification' in window) {
     // }
 
     subscribe();
+
+    messaging.onMessage(function(payload) {
+        console.log('Message received', payload);
+        navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
+        Notification.requestPermission(function(permission) {
+            if (permission === 'granted') {
+                navigator.serviceWorker.ready.then(function(registration) {
+                  payload.data.data = JSON.parse(JSON.stringify(payload.data));
+    
+                  registration.showNotification(payload.data.title, payload.data);
+                }).catch(function(error) {
+                    showError('ServiceWorker registration failed', error);
+                });
+            }
+        });
+    });
 }
 
-messaging.onMessage(function(payload) {
-    console.log('Message received', payload);
-    navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
-    Notification.requestPermission(function(permission) {
-        if (permission === 'granted') {
-            navigator.serviceWorker.ready.then(function(registration) {
-              payload.data.data = JSON.parse(JSON.stringify(payload.data));
-
-              registration.showNotification(payload.data.title, payload.data);
-            }).catch(function(error) {
-                showError('ServiceWorker registration failed', error);
-            });
-        }
-    });
-});
 
 function subscribe() {
     messaging.requestPermission()
