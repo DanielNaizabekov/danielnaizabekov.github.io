@@ -10,7 +10,7 @@ btn.onclick = () => {
             // Firebase loses 'image' from the notification.
             // And you must see this: https://github.com/firebase/quickstart-js/issues/71
             data: {
-                "title": "Ералаш",
+                "title": "Уведомление",
                 "body": "Начало в 21:00",
             },
             to: 'eb6Ua_SCMFg:APA91bFoU8aMdI29EDHhAZihZIQgS8WvrE4-tt1cT5L6NAVGBsIcgMkfFzpP2Xm1--oa-WOs8NIry9ioBuVyhm8FwPaDNtyEgZA_cyTaMbZ3ve_w8fmc9GNgYYM642yArJXRucdKXszz'
@@ -32,7 +32,7 @@ if ('Notification' in window) {
 
     subscribe();
 }
-subscribe();
+
 messaging.onMessage(function(payload) {
     console.log('Message received', payload);
     navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
