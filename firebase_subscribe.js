@@ -1,5 +1,8 @@
+
 let btn = document.querySelector('.btn');
+
 btn.onclick = () => {
+    console.log(5);
     fetch('https://fcm.googleapis.com/fcm/send', {
         method: 'POST',
         headers: {
@@ -7,11 +10,13 @@ btn.onclick = () => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+            // Firebase loses 'image' from the notification.
+            // And you must see this: https://github.com/firebase/quickstart-js/issues/71
             data: {
-                "title": "Уведомление",
+                "title": "Ералаш",
                 "body": "Начало в 21:00",
             },
-            to: 'fwlaAyOuTUs:APA91bGm3Jr_nvQJkILzFtAm8zOgH5LVGefz4o1C--Sx1FCKd4dqGWBWO83gIAKpUAbNfxZGqxqc5awztucalA65cLOncs2d3J6_dWjxmZo8ae9tSOitW5oL5OQH63pJy2IQ6IYxLvlc',
+            to: 'eb6Ua_SCMFg:APA91bFoU8aMdI29EDHhAZihZIQgS8WvrE4-tt1cT5L6NAVGBsIcgMkfFzpP2Xm1--oa-WOs8NIry9ioBuVyhm8FwPaDNtyEgZA_cyTaMbZ3ve_w8fmc9GNgYYM642yArJXRucdKXszz'
         })
     }).then(response => console.log(response))
 };
@@ -21,34 +26,46 @@ firebase.initializeApp({
     messagingSenderId: '180553791102'
 });
 
-
+// браузер поддерживает уведомления
+// вообще, эту проверку должна делать библиотека Firebase, но она этого не делает
 if ('Notification' in window) {
-    console.log('ok')
     messaging = firebase.messaging();
-    subscribe();
-}
 
+    // пользователь уже разрешил получение уведомлений
+    // подписываем на уведомления если ещё не подписали
+    if (Notification.permission === 'granted') {
+        subscribe();
+    }
+
+    subscribe();
+    // по клику, запрашиваем у пользователя разрешение на уведомления
+    // и подписываем его
+}
+subscribe();
 messaging.onMessage(function(payload) {
     console.log('Message received', payload);
-
-    navigator.serviceWorker.register('firebase-messaging-sw.js');
+    // register fake ServiceWorker for show notification on mobile devices
+    navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
     Notification.requestPermission(function(permission) {
         if (permission === 'granted') {
             navigator.serviceWorker.ready.then(function(registration) {
-                
+              // Copy data object to get parameters in the click handler
               payload.data.data = JSON.parse(JSON.stringify(payload.data));
 
               registration.showNotification(payload.data.title, payload.data);
             }).catch(function(error) {
-                console.log('Error');
+                // registration failed :(
+                showError('ServiceWorker registration failed', error);
             });
         }
     });
 });
 
 function subscribe() {
+    // запрашиваем разрешение на получение уведомлений
     messaging.requestPermission()
         .then(function () {
+            // получаем ID устройства
             messaging.getToken()
                 .then(function (currentToken) {
                     console.log(currentToken);
@@ -70,6 +87,7 @@ function subscribe() {
     });
 }
 
+// отправка ID на сервер
 function sendTokenToServer(currentToken) {
     if (!isTokenSentToServer(currentToken)) {
         console.log('Отправка токена на сервер...');
@@ -85,6 +103,8 @@ function sendTokenToServer(currentToken) {
     }
 }
 
+// используем localStorage для отметки того,
+// что пользователь уже подписался на уведомления
 function isTokenSentToServer(currentToken) {
     return window.localStorage.getItem('sentFirebaseMessagingToken') == currentToken;
 }
