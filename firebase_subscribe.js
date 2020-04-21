@@ -28,36 +28,36 @@ if ('Notification' in window) {
     if (Notification.permission === 'granted') {
         subscribe();
     }
+}
 
-    messaging.onMessage(function(payload) {
-        console.log('Message received', payload);
+messaging.onMessage(function(payload) {
+    console.log('Message received', payload);
 
-        navigator.serviceWorker.register('firebase-messaging-sw.js');
-        Notification.requestPermission(function(permission) {
-            if (permission === 'granted') {
-                navigator.serviceWorker.ready.then(function(registration) {
-                    
-                  payload.data.data = JSON.parse(JSON.stringify(payload.data));
-    
-                  registration.showNotification(payload.data.title, payload.data);
-                }).catch(function(error) {
-                    console.log('Error');
-                });
-            }
-        });
-    });
+    navigator.serviceWorker.register('firebase-messaging-sw.js');
+    Notification.requestPermission(function(permission) {
+        if (permission === 'granted') {
+            navigator.serviceWorker.ready.then(function(registration) {
+                
+              payload.data.data = JSON.parse(JSON.stringify(payload.data));
 
-    messaging.onTokenRefresh(function() {
-        messaging.getToken()
-            .then(function(refreshedToken) {
-                console.log('Token refreshed');
-                sendTokenToServer(refreshedToken);
-            })
-            .catch(function(error) {
+              registration.showNotification(payload.data.title, payload.data);
+            }).catch(function(error) {
                 console.log('Error');
             });
+        }
     });
-}
+});
+
+messaging.onTokenRefresh(function() {
+    messaging.getToken()
+        .then(function(refreshedToken) {
+            console.log('Token refreshed');
+            sendTokenToServer(refreshedToken);
+        })
+        .catch(function(error) {
+            console.log('Error');
+        });
+});
 
 function subscribe() {
     messaging.requestPermission()
