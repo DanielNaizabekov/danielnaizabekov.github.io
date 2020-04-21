@@ -30,21 +30,21 @@ if ('Notification' in window) {
 
     subscribe();
 
-    // messaging.onMessage(function(payload) {
-    //     console.log('Message received', payload);
-    //     navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
-    //     Notification.requestPermission(function(permission) {
-    //         if (permission === 'granted') {
-    //             navigator.serviceWorker.ready.then(function(registration) {
-    //               payload.data.data = JSON.parse(JSON.stringify(payload.data));
+    messaging.onMessage(function(payload) {
+        console.log('Message received', payload);
+        navigator.serviceWorker.register('/serviceworker/firebase-messaging-sw.js');
+        Notification.requestPermission(function(permission) {
+            if (permission === 'granted') {
+                navigator.serviceWorker.ready.then(function(registration) {
+                  payload.data.data = JSON.parse(JSON.stringify(payload.data));
     
-    //               registration.showNotification(payload.data.title, payload.data);
-    //             }).catch(function(error) {
-    //                 showError('ServiceWorker registration failed', error);
-    //             });
-    //         }
-    //     });
-    // });
+                  registration.showNotification(payload.data.title, payload.data);
+                }).catch(function(error) {
+                    showError('ServiceWorker registration failed', error);
+                });
+            }
+        });
+    });
 }
 
 
