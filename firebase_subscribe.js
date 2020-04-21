@@ -26,9 +26,9 @@ firebase.initializeApp({
 if ('Notification' in window) {
     messaging = firebase.messaging();
 
-    if (Notification.permission === 'granted') {
-        subscribe();
-    }
+    // if (Notification.permission === 'granted') {
+    //     subscribe();
+    // }
 
     subscribe();
 }
