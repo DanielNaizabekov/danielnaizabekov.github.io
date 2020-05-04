@@ -16,4 +16,8 @@ const messaging = firebase.messaging();
 
 messaging.setBackgroundMessageHandler(function(payload) {
   console.log('Recieved background message', payload);
+
+  payload.data.data = JSON.parse(JSON.stringify(payload.data));
+
+  return self.registration.showNotification(payload.data.title, payload.data);
 });
