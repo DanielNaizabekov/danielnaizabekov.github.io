@@ -5,7 +5,7 @@ btn.onclick = () => {
 
 setTimeout(() => {
     sendNotify();
-}, 3000);
+}, 7000);
 
 function sendNotify() {
     messaging.getToken().then(token => {
@@ -47,6 +47,7 @@ if ('Notification' in window) {
 
     messaging.onMessage(function(payload) {
         console.log('Message received', payload);
+        alert('Message recieved');
     });
 }
 
